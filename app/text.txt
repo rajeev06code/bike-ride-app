@@ -1,0 +1,237 @@
+// import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+// import { Link } from "expo-router";
+// import { MapPin, User, MessageCircle, Phone } from "lucide-react";
+// import LottieView from "lottie-react-native";
+
+// import animationData from '../../bike-ride-app/assets/animations/Online Delivery Service.json';
+// import { useEffect, useState } from "react";
+
+// export default function HomeScreen() {
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   useEffect(() => {
+//     // Simulate loading process
+//     const timer = setTimeout(() => {
+//       setIsLoading(false);
+//     }, 3000);
+
+//     return () => clearTimeout(timer);
+//   }, []);
+//   if (isLoading) {
+//     return (
+//       <View style={styles.splashContainer}>
+//        <LottieView
+//           source={animationData}
+//           autoPlay
+//           loop
+    
+//           style={styles.splashImage}
+
+//         /> 
+//       </View>
+//     );
+//   }
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.content}>
+//         {/* Feature Icons */}
+//         <View style={styles.iconContainer}>
+//           <View style={styles.iconCircle}>
+//             {/* <MapPin  size={24} /> */}
+//           </View>
+//           <View style={[styles.iconCircle, styles.iconTopRight]}>
+//             {/* <User color="#F08200" size={24} /> */}
+//           </View>
+//           <View style={[styles.iconCircle, styles.iconBottomLeft]}>
+//             {/* <MessageCircle color="#F08200" size={24} /> */}
+//           </View>
+//           <View style={[styles.iconCircle, styles.iconBottomRight]}>
+//             {/* <Phone color="#F08200" size={24} /> */}
+//           </View>
+//         </View>
+
+//         {/* Profile Image */}
+//         {/* <View > */}
+        
+//          <LottieView
+//           source={animationData}
+//           autoPlay
+//           loop
+//           style={{ width: 300, height: 200 }}
+//         /> 
+//        {/* </View> */}
+
+//         {/* Wave Shape */}
+//         <View style={styles.wave} />
+
+//         {/* Text Content */}
+//         <View style={styles.textContainer}>
+//           <Text style={styles.title}>
+//             <Text style={styles.orangeText}>Earn Money</Text> With This{"\n"}
+//             <Text style={styles.orangeText}> Riderly</Text> Driver App
+//           </Text>
+//           <Text style={styles.description}>
+//             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+//             eiusmod tempor incididunt
+//           </Text>
+//         </View>
+
+//         {/* Buttons */}
+//         <TouchableOpacity style={styles.button}>
+//           <Text style={styles.buttonText}>Let's Get Started</Text>
+//         </TouchableOpacity>
+
+//         <View style={styles.signInContainer}>
+//           <Text style={styles.signInText}>Already have an account? </Text>
+//           <Link href="/signin" style={styles.signInLink}>
+//             Sign In
+//           </Link>
+//         </View>
+
+//         {/* Bottom Indicator */}
+//         <View style={styles.indicator} />
+//       </View>
+//     </View>
+//   );
+// }
+
+// const styles = StyleSheet.create({
+//   splashContainer: {
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     backgroundColor: '#ffffff',
+//   },
+//   splashImage: {
+//     width: '50%',
+//     height: '50%',
+//     resizeMode: 'contain',
+//   },
+//   container: {
+//     flex: 1,
+//     backgroundColor: "#fff",
+//   },
+//   content: {
+//     flex: 1,
+//     alignItems: "center",
+//     paddingTop: 0,
+//   },
+//   iconContainer: {
+//     width: "100%",
+//     height: 200,
+//     position: "relative",
+//   },
+//   lottieContainer: {
+//     width: 280,
+//     height: 280,
+//     marginTop: -100,
+//     backgroundColor: '#fff',
+//     borderRadius: 140,
+//     overflow: 'hidden',
+//     shadowColor: '#000',
+ 
+//   },
+//   iconCircle: {
+//     position: "absolute",
+//     width: 48,
+//     height: 48,
+//     borderRadius: 24,
+//     backgroundColor: "#FFF",
+//     justifyContent: "center",
+//     alignItems: "center",
+//     shadowColor: "#000",
+//     shadowOffset: {
+//       width: 0,
+//       height: 2,
+//     },
+//     shadowOpacity: 0.1,
+//     shadowRadius: 4,
+//     elevation: 4,
+//   },
+//   iconTopRight: {
+//     right: 30,
+//     top: 40,
+//   },
+//   iconBottomLeft: {
+//     left: 60,
+//     bottom: 40,
+//   },
+//   iconBottomRight: {
+//     right: 60,
+//     bottom: 40,
+//   },
+//   profileImage: {
+//     width: 280,
+//     height: 280,
+//     borderRadius: 140,
+//     marginTop: -140,
+//     marginBottom: 20,
+//   },
+//   wave: {
+//     width: "100%",
+//     height: 60,
+//     backgroundColor: "#fff",
+//     borderTopLeftRadius: 200,
+//     borderTopRightRadius: 200,
+//     marginTop: -30,
+    
+    
+//   },
+//   textContainer: {
+//     alignItems: "center",
+//     paddingHorizontal: 40,
+//     marginTop: 20,
+//   },
+//   title: {
+//     fontSize: 28,
+//     fontWeight: "700",
+//     textAlign: "center",
+//     marginBottom: 16,
+//     lineHeight: 36,
+//   },
+//   orangeText: {
+//     color: "#F08200",
+//   },
+//   description: {
+//     fontSize: 16,
+//     color: "#666",
+//     textAlign: "center",
+//     lineHeight: 24,
+//   },
+//   button: {
+//     backgroundColor: "#F08200",
+//     paddingVertical: 16,
+//     paddingHorizontal: 32,
+//     borderRadius: 30,
+//     width: "80%",
+//     marginTop: 32,
+//   },
+//   buttonText: {
+//     color: "#fff",
+//     fontSize: 18,
+//     fontWeight: "600",
+//     textAlign: "center",
+//   },
+//   signInContainer: {
+//     flexDirection: "row",
+//     marginTop: 20,
+//     alignItems: "center",
+//   },
+//   signInText: {
+//     fontSize: 16,
+//     color: "#666",
+//   },
+//   signInLink: {
+//     fontSize: 16,
+//     color: "#F08200",
+//     fontWeight: "600",
+//   },
+//   indicator: {
+//     width: 40,
+//     height: 4,
+//     backgroundColor: "#000",
+//     borderRadius: 2,
+//     marginTop: 40,
+//     opacity: 0.1,
+//   },
+// });

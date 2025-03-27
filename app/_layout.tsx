@@ -1,39 +1,118 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import {
+  StatusBar,
+  TouchableOpacity,
+  Platform,
+  Linking,
+  Image,
+  StyleSheet,
+  View,
+  Text,
+} from "react-native";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const handleCallPress = () => {
+    const phoneNumber = "7461824651";
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
+ 
+    if (Platform.OS === "android") {
+      Linking.openURL(`tel:${phoneNumber}`);
+    } else {
+      Linking.openURL(`telprompt:${phoneNumber}`);
     }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
+  };
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack >
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="OnboardForm"
+        options={{
+          headerTitle: "",
+          // headerStyle:{backgroundColor:"grey"},
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../bike-ride-app/assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />{" "}
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+        <Stack.Screen
+        name="OtpScreen"
+        options={{
+          headerTitle: "",
+          // headerStyle:{backgroundColor:"grey"},
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../bike-ride-app/assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />{" "}
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+         <Stack.Screen
+        name="VerificationScreen"
+        options={{
+          headerTitle: "",
+          // headerStyle:{backgroundColor:"grey"},
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../bike-ride-app/assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />{" "}
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+    </Stack>
+    
   );
 }
+
+const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    backgroundColor: "#f0f0f0", // Light gray background
+    borderRadius: 20, // Rounded corners
+    marginRight: 15,
+  },
+  icon: {
+    width: 23,
+    height: 23,
+    tintColor: "#333",
+    marginRight: 6, // Space between icon and text
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333", // Dark gray text
+  },
+});
