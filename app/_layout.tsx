@@ -1,118 +1,76 @@
-import { Stack } from "expo-router";
-import {
-  StatusBar,
-  TouchableOpacity,
-  Platform,
-  Linking,
-  Image,
-  StyleSheet,
-  View,
-  Text,
-} from "react-native";
+import { Redirect, Stack } from "expo-router";
+import { useState } from "react";
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import LottieView from "lottie-react-native";
+import animationData from "../assets/animations/Online Delivery Service.json";
+import { StyleSheet, Text, View } from "react-native";
 
 
+SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
-  const handleCallPress = () => {
-    const phoneNumber = "7461824651";
+  const [isLoggedIn,setIsLoggedIn]=useState(false)
+  
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(()=>{
+      SplashScreen.hideAsync();
+    },2000)
+    return () => clearTimeout(timer);
+  }, [])
+  //   useEffect(() => {
+  //   // Simulate loading process
+  //   const timer = setTimeout(() => {
+  //     setIsLoading(false);
+  //   }, 3000);
 
- 
-    if (Platform.OS === "android") {
-      Linking.openURL(`tel:${phoneNumber}`);
-    } else {
-      Linking.openURL(`telprompt:${phoneNumber}`);
-    }
-  };
+  //   return () => clearTimeout(timer);
+  // }, []);
+  // if (isLoading) {
+  //   return (
+  //     <View style={styles.splashContainer}>
+  //       <LottieView
+  //         source={animationData}
+  //         autoPlay
+  //         loop
+  //         style={styles.splashImage}
+  //       />
+  //         <Text style={styles.madeInIndiaText}> Made in India 🇮🇳 </Text>
+  //         <Text style={styles.versiontext} >Version 1.0.0</Text>
+  //     </View>
+  //   );
+  // }
   return (
-    <Stack >
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="OnboardForm"
-        options={{
-          headerTitle: "",
-          // headerStyle:{backgroundColor:"grey"},
-
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={handleCallPress}
-              style={styles.buttonContainer}
-            >
-              <Image
-                source={require("../../bike-ride-app/assets/images/support.png")}
-                style={styles.icon}
-                resizeMode="contain"
-              />{" "}
-              <Text style={styles.buttonText}>Help</Text>
-            </TouchableOpacity>
-          ),
-        }}
-      />
-        <Stack.Screen
-        name="OtpScreen"
-        options={{
-          headerTitle: "",
-          // headerStyle:{backgroundColor:"grey"},
-
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={handleCallPress}
-              style={styles.buttonContainer}
-            >
-              <Image
-                source={require("../../bike-ride-app/assets/images/support.png")}
-                style={styles.icon}
-                resizeMode="contain"
-              />{" "}
-              <Text style={styles.buttonText}>Help</Text>
-            </TouchableOpacity>
-          ),
-        }}
-      />
-         <Stack.Screen
-        name="VerificationScreen"
-        options={{
-          headerTitle: "",
-          // headerStyle:{backgroundColor:"grey"},
-
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={handleCallPress}
-              style={styles.buttonContainer}
-            >
-              <Image
-                source={require("../../bike-ride-app/assets/images/support.png")}
-                style={styles.icon}
-                resizeMode="contain"
-              />{" "}
-              <Text style={styles.buttonText}>Help</Text>
-            </TouchableOpacity>
-          ),
-        }}
-      />
-    </Stack>
-    
+   <>
+   <Stack screenOptions={{ headerShown: false }}/>
+   {isLoggedIn ? <Redirect href={"/(main)"}/>:<Redirect href={"/(auth)"}/>}
+   </>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  splashImage: {
+    width: "50%",
+    height: "50%",
+    resizeMode: "contain",
+  },
+  splashContainer: {
+    flex: 1,
     justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    backgroundColor: "#f0f0f0", // Light gray background
-    borderRadius: 20, // Rounded corners
-    marginRight: 15,
+    alignItems: "center",
+    backgroundColor: "#ffffff",
   },
-  icon: {
-    width: 23,
-    height: 23,
-    tintColor: "#333",
-    marginRight: 6, // Space between icon and text
-  },
-  buttonText: {
+  madeInIndiaText: {
+    position: 'absolute',
+    bottom: 70,
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#333", // Dark gray text
+    fontWeight: 'bold',
+    color: '#FF9933', // Saffron color
+  },
+  versiontext: {
+    position: 'absolute',
+    bottom: 40,
+    fontSize: 16,
+   
   },
 });

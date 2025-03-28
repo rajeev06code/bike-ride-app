@@ -1,5 +1,7 @@
-import { Link } from "expo-router";
-import React from "react";
+import { requestOTP } from "@/services/auth";
+import { Link, router } from "expo-router";
+import React, { useState } from "react";
+import { Alert } from "react-native";
 import {
   View,
   Text,
@@ -7,9 +9,45 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import Config from "react-native-config";
 import Icon from "react-native-vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const PhoneNumberScreen = () => {
+  const [email, setEmail] = useState();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [useFormData, setUseFormData] = useState(false);
+  const handleRequestOTP = async () => {
+    if (!email) {
+      // setError("Email is required");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await requestOTP(email, "driver");
+      if (response.status === 200) {
+        await AsyncStorage.setItem(
+          "email",
+          JSON.stringify({
+            email: email,
+          })
+        );
+        router.navigate("/OtpScreen");
+      }
+      console.log(response);
+      // Alert.alert("Success", "OTP has been sent to your email");
+      // Navigate to OTP verification screen
+    } catch (err) {
+      Alert.alert(JSON.stringify(error));
+      setError(err?.message || "Failed to send OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <View style={styles.container}>
       <View>
@@ -25,9 +63,9 @@ const PhoneNumberScreen = () => {
           }}
         >
           <Icon name="mobile-phone" size={50} />
-          <Text style={styles.title}>Enter your Phone Number to Drive</Text>
+          <Text style={styles.title}>Enter your Email to Drive</Text>
         </View>
-        <View style={styles.phoneInputContainer}>
+        {/* <View style={styles.phoneInputContainer}>
           <Text style={styles.countryCode}>+91</Text>
           <TextInput
             style={styles.phoneInput}
@@ -35,21 +73,36 @@ const PhoneNumberScreen = () => {
             keyboardType="phone-pad"
             maxLength={10}
           />
+        </View> */}
+        <View style={styles.emailInputContainer}>
+          {/* <Text style={styles.emailPrefix}>spj.deepak@</Text> */}
+          <TextInput
+            style={styles.emailInput}
+            placeholder="xyz@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+            autoCorrect={false}
+          />
         </View>
       </View>
       <View>
-        <Link
+        {/* <Link
           href="/OtpScreen"
           asChild
           // style={[
           //   styles.registerButtonText,
           //   { color: colors.background },
           // ]}
+        > */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={handleRequestOTP}
         >
-          <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Proceed</Text>
-          </TouchableOpacity>
-        </Link>
+          <Text style={styles.primaryButtonText}>Proceed</Text>
+        </TouchableOpacity>
+        {/* </Link> */}
         <View style={{ marginBottom: 10, paddingHorizontal: 5 }}>
           <Text>
             {/* <Icons name="info" size={15} color="#F08200" />  */}
@@ -123,6 +176,24 @@ const styles = StyleSheet.create({
     color: "#25D366",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  // email
+  emailInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  emailPrefix: {
+    color: "gray",
+  },
+  emailInput: {
+    flex: 1,
+    height: 40,
+    paddingHorizontal: 10,
   },
 });
 
