@@ -67,11 +67,35 @@ export default function AuthStack() {
         ),
       }}
     />
+      <Stack.Screen
+      name="LanguageSelectionScreen"
+      options={{
+        headerTitle: "",
+        headerShown: true,
+        headerBackVisible:false,
+        // headerStyle:{backgroundColor:"grey"},
+
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={handleCallPress}
+            style={styles.buttonContainer}
+          >
+            <Image
+              source={require("../../assets/images/support.png")}
+              style={styles.icon}
+              resizeMode="contain"
+            />{" "}
+            <Text style={styles.buttonText}>Help</Text>
+          </TouchableOpacity>
+        ),
+      }}
+    />
     <Stack.Screen
       name="VerificationScreen"
       options={{
         headerTitle: "",
         headerShown: true,
+        headerBackVisible:false,
         // headerStyle:{backgroundColor:"grey"},
 
         headerRight: () => (

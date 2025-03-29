@@ -1,27 +1,25 @@
 import { View, Text,BackHandler, Alert } from 'react-native'
 import React from 'react'
 import { useFocusEffect,useNavigation } from '@react-navigation/native';
+import { useBackHandler } from '@/hooks/custom/useBackHandler';
 
 
 const VerificationScreen = () => {
   const navigation = useNavigation();
+  const { handleBackPress } = useBackHandler({
+    exitMessage: 'Are you sure you want to exit?',
+    // other custom options
+  });
+
   useFocusEffect(
     React.useCallback(() => {
-      const onBackPress = () => {
-        // Return true to stop the back action
-        // Optionally show confirmation dialog
-        showExitAlert()
-        return true;
-      };
-
-      BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
+      BackHandler.addEventListener('hardwareBackPress', handleBackPress);
       return () => {
-        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+        BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
       };
-    }, [])
+    }, [handleBackPress])
   );
-  const showExitAlert = (action) => {
+  const showExitAlert = (action:any) => {
     Alert.alert(
       'Are you sure you want to exit?',
       '',
@@ -43,8 +41,11 @@ const VerificationScreen = () => {
     );
   };
   return (
-    <View style={{display:"flex",width:"100%",flex:1,alignItems:"center",justifyContent:"center"}}>
-      <Text style={{fontWeight:"bold",fontSize:20}}>Verification Screen</Text>
+    <View style={{display:"flex",width:"100%",flex:1,flexDirection:"column",alignItems:"center",justifyContent:"space-between"}}>
+      <View style={{display:"flex",justifyContent:"flex-start",width:"100%"}}><Text style={{fontSize:20,padding:10,fontWeight:"bold"}}>Hi,User</Text></View>
+      <View>      <Text style={{fontWeight:"bold",fontSize:20}}>Documents Verification Screen</Text></View>
+      <View></View>
+
     </View>
   )
 }
