@@ -6,36 +6,33 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
   ScrollView,
   Image,
   BackHandler,
-  ImageSourcePropType,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 interface Language {
   id: number;
   lan: string;
   flag: string;
+  code: string;
 }
 
 interface Vehicle {
   id: number;
   vehicle: string;
-  image: ImageSourcePropType;
+  image: any; // Use proper image type
 }
 
 const LanguageSelectionScreen = () => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
 
   const languages: Language[] = [
-    { id: 1, lan: "ENGLISH", flag: "🇬🇧" },
-    { id: 2, lan: "हिन्दी", flag: "🇮🇳" },
+    { id: 1, lan: "English", flag: "🇬🇧", code: "en" },
+    { id: 2, lan: "हिन्दी", flag: "🇮🇳", code: "hi" },
+ 
   ];
 
   const vehicles: Vehicle[] = [
@@ -45,7 +42,6 @@ const LanguageSelectionScreen = () => {
 
   const { handleBackPress } = useBackHandler({
     exitMessage: 'Are you sure you want to exit?',
-    // other custom options
   });
 
   useFocusEffect(
@@ -57,201 +53,206 @@ const LanguageSelectionScreen = () => {
     }, [handleBackPress])
   );
 
+  const handleContinue = () => {
+    if (selectedLanguage && selectedVehicle) {
+      router.navigate("/VerificationScreen");
+    }
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      {/* Language Selection */}
-      <Text style={styles.sectionTitle}>Please Select Language</Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome Captain!</Text>
+          <Text style={styles.subtitle}>Let's get you started</Text>
+        </View>
 
-      <View style={styles.vehicleOptionsContainer}>
-        {languages.map((language) => (
-          <TouchableOpacity
-            key={language.id}
-            style={[
-              styles.vehicleOption,
-              selectedLanguage === language.lan && styles.selectedVehicleOption,
-            ]}
-            onPress={() => setSelectedLanguage(language.lan)}
-          >
-            <Text style={styles.optionText}>
-              {language.flag} {language.lan}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+        {/* Language Selection */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Select Your Language</Text>
+          <View style={styles.optionsContainer}>
+            {languages.map((language) => (
+              <TouchableOpacity
+                key={language.id}
+                style={[
+                  styles.optionCard,
+                  selectedLanguage === language.code && styles.selectedOptionCard,
+                ]}
+                onPress={() => setSelectedLanguage(language.code)}
+              >
+                <Text style={styles.optionText}>
+                  {language.flag} {language.lan}
+                </Text>
+                {selectedLanguage === language.code && (
+                  <Ionicons name="checkmark-circle" size={24} color="green" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-      {/* Vehicle Selection */}
-      <Text style={[styles.sectionTitle, { marginTop: 30 }]}>
-        Select Vehicle Type
-      </Text>
+        {/* Vehicle Selection */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Select Your Vehicle</Text>
+          <View style={styles.vehicleOptionsContainer}>
+            {vehicles.map((vehicle) => (
+              <TouchableOpacity
+                key={vehicle.id}
+                style={[
+                  styles.vehicleCard,
+                  selectedVehicle === vehicle.vehicle && styles.selectedVehicleCard,
+                ]}
+                onPress={() => setSelectedVehicle(vehicle.vehicle)}
+              >
+                <Image
+                  source={vehicle.image}
+                  style={styles.vehicleImage}
+                  resizeMode="contain"
+                />
+                <Text style={styles.vehicleText}>{vehicle.vehicle}</Text>
+                {selectedVehicle === vehicle.vehicle && (
+                  <View style={styles.selectedIndicator} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </ScrollView>
 
-      <View style={styles.vehicleOptionsContainer}>
-        {vehicles.map((vehicle) => (
-          <TouchableOpacity
-            key={vehicle.id}
-            style={[
-              styles.vehicleOption,
-              selectedVehicle === vehicle.vehicle && styles.selectedVehicleOption,
-            ]}
-            onPress={() => setSelectedVehicle(vehicle.vehicle)}
-          >
-            <View>
-              <Image
-                source={vehicle.image}
-                style={styles.icon}
-                resizeMode="contain"
-              />
-            </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Submit Button */}
+      {/* Continue Button */}
       <TouchableOpacity
         style={[
-          styles.submitButton,
-          (!selectedLanguage || !selectedVehicle) && styles.buttonDisabled
+          styles.continueButton,
+          (!selectedLanguage || !selectedVehicle) && styles.disabledButton,
         ]}
+        onPress={handleContinue}
         disabled={!selectedLanguage || !selectedVehicle}
-        onPress={() => router.navigate("/VerificationScreen")}
       >
-        <Text style={styles.submitButtonText}>Continue</Text>
+        <Text style={styles.continueButtonText}>Continue</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  icon: {
-    width: 80,
-    height: 80,
-  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    padding: 20,
+    backgroundColor: "#F9FAFB",
+  },
+  scrollContainer: {
+    padding: 24,
+    paddingBottom: 100,
   },
   header: {
-    marginBottom: 15,
+    marginBottom: 32,
   },
-  headerName: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#000",
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 8,
   },
-  headerSubtitle: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 5,
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
   },
-  availableText: {
-    fontSize: 14,
-    color: "#666",
-    marginRight: 15,
-  },
-  followButton: {
-    backgroundColor: "#000",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 15,
-  },
-  followButtonText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#eee",
-    marginVertical: 15,
+  section: {
+    marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#000",
-  },
-  searchContainer: {
-    marginBottom: 15,
-  },
-  searchInput: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
+    fontWeight: "600",
+    color: "#111827",
+    marginBottom: 16,
   },
   optionsContainer: {
-    marginBottom: 20,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
   },
-  option: {
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+  optionCard: {
+    flex: 1,
+    minWidth: "45%",
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  selectedOption: {
-    backgroundColor: "#FFD6AD",
+  selectedOptionCard: {
+    borderColor: "green",
+    backgroundColor: "#EEF2FF",
   },
   optionText: {
-    fontSize: 20,
-    color: "#333",
-  },
-  selectedIndicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#007AFF",
+    fontSize: 16,
+    color: "#111827",
   },
   vehicleOptionsContainer: {
     flexDirection: "row",
-    marginBottom: 30,
+    gap: 16,
   },
-  vehicleOption: {
+  vehicleCard: {
     flex: 1,
-    padding: 15,
+    padding: 20,
     borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    marginRight: 10,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    backgroundColor: "white",
     alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
   },
-  selectedVehicleOption: {
-    borderColor: "#007AFF",
-    backgroundColor: "#f0f7ff",
+  selectedVehicleCard: {
+    borderColor: "green",
+    backgroundColor: "#EEF2FF",
   },
-  vehicleOptionText: {
+  vehicleImage: {
+    width: 80,
+    height: 80,
+    marginBottom: 12,
+  },
+  vehicleText: {
     fontSize: 16,
-    color: "#333",
+    fontWeight: "500",
+    color: "#111827",
   },
-  selectedVehicleIndicator: {
+  selectedIndicator: {
     position: "absolute",
-    top: 5,
-    right: 5,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#007AFF",
+    top: 12,
+    right: 12,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor:"green",
   },
-  submitButton: {
+  continueButton: {
+    position: "absolute",
+    bottom: 24,
+    left: 24,
+    right: 24,
     backgroundColor: "#FF9933",
-    padding: 15,
-    borderRadius: 8,
+    borderRadius: 12,
+    padding: 18,
     alignItems: "center",
-    marginTop: 20,
+    justifyContent: "center",
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
-  submitButtonActive: {
-    opacity: 1,
+  disabledButton: {
+    backgroundColor: "#9CA3AF",
+    shadowColor: "transparent",
   },
-  submitButtonText: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  buttonDisabled: {
-    backgroundColor: "#dadada",
-    opacity: 0.8,
+  continueButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
 

@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import LottieView from "lottie-react-native";
 import animationData from "../assets/animations/Online Delivery Service.json";
 import { StyleSheet, Text, View } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 SplashScreen.preventAutoHideAsync();
@@ -12,6 +13,17 @@ export default function RootLayout() {
   const [isLoggedIn,setIsLoggedIn]=useState(false)
   
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+   
+    const getFromStorage = async () => {
+      const stored = await AsyncStorage.getItem("access_token");
+      console.log(stored)
+      // if (stored) setIsLoggedIn(JSON.parse(stored));
+    };
+    
+    getFromStorage();
+  }, []);
   useEffect(() => {
     const timer = setTimeout(()=>{
       SplashScreen.hideAsync();
@@ -40,6 +52,27 @@ export default function RootLayout() {
   //     </View>
   //   );
   // }
+
+
+  // const checkAuthStatus = useCallback(async () => {
+  //   try {
+  //     const token = await AsyncStorage.getItem("access_token");
+  //     const userData = await AsyncStorage.getItem("user_data");
+      
+  //     // Validate token existence and optionally its format/expiry
+  //     setIsLoggedIn(!!token);
+  //   } catch (error) {
+  //     console.error("Error checking auth status:", error);
+  //     setIsLoggedIn(false);
+  //   } finally {
+  //     setIsLoading(false);
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   checkAuthStatus();
+  // }, [checkAuthStatus]);
   return (
    <>
    <Stack screenOptions={{ headerShown: false }}/>

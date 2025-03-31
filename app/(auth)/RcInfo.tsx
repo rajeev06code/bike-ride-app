@@ -1,0 +1,291 @@
+import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Dimensions,
+  Image,
+  Alert,
+} from 'react-native';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+type OwnershipType = 'Self Owned' | 'Company Owned' | 'Rented';
+
+const VehicleRCForm = () => {
+  const [ownership, setOwnership] = useState<OwnershipType>('Self Owned');
+  const [ownerName, setOwnerName] = useState('');
+  const [vehicleNumber, setVehicleNumber] = useState('');
+  const [frontImage, setFrontImage] = useState<string | null>(null);
+  const [backImage, setBackImage] = useState<string | null>(null);
+
+  const handleSubmit = () => {
+    if (!ownerName || !vehicleNumber || !frontImage || !backImage) {
+      Alert.alert('Error', 'Please fill all fields and upload both images');
+      return;
+    }
+    // Submit logic here
+    Alert.alert('Success', 'Vehicle RC information submitted successfully');
+    Keyboard.dismiss();
+  };
+
+  const handleImageUpload = (type: 'front' | 'back') => {
+    // In a real app, this would trigger image picker
+    const mockImage = 'https://via.placeholder.com/300';
+    if (type === 'front') {
+      setFrontImage(mockImage);
+    } else {
+      setBackImage(mockImage);
+    }
+  };
+
+  return (
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.form}>
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Vehicle RC Details</Text>
+            </View>
+
+            {/* Ownership Dropdown */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Vehicle Ownership</Text>
+              <View style={styles.dropdown}>
+                <Text style={styles.dropdownText}>{ownership}</Text>
+                <Ionicons name="chevron-down" size={20} color="#6B7280" />
+              </View>
+            </View>
+
+            {/* Owner Name Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Vehicle Owner Name</Text>
+              <TextInput
+                style={styles.input}
+                value={ownerName}
+                onChangeText={setOwnerName}
+                placeholder="Enter vehicle owner name"
+                placeholderTextColor="#9CA3AF"
+                returnKeyType="next"
+              />
+            </View>
+
+            {/* Vehicle Number Input */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Enter vehicle number</Text>
+              <TextInput
+                style={styles.input}
+                value={vehicleNumber}
+                onChangeText={setVehicleNumber}
+                placeholder="Eg: KA01AB1234"
+                placeholderTextColor="#9CA3AF"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+              />
+            </View>
+
+            {/* RC Images Upload Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Upload RC Images</Text>
+              <View style={styles.uploadContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.uploadButton,
+                    frontImage && styles.uploadedButton,
+                  ]}
+                  onPress={() => handleImageUpload('front')}
+                >
+                  {frontImage ? (
+                    <Image source={{ uri: frontImage }} style={styles.uploadedImage} />
+                  ) : (
+                    <>
+                      <Ionicons name="image-outline" size={32} color="#4F46E5" />
+                      <Text style={styles.uploadButtonText}>FRONT SIDE</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.uploadButton,
+                    backImage && styles.uploadedButton,
+                  ]}
+                  onPress={() => handleImageUpload('back')}
+                >
+                  {backImage ? (
+                    <Image source={{ uri: backImage }} style={styles.uploadedImage} />
+                  ) : (
+                    <>
+                      <Ionicons name="image-outline" size={32} color="#4F46E5" />
+                      <Text style={styles.uploadButtonText}>BACK SIDE</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Submit Button */}
+            <TouchableOpacity 
+              style={[
+                styles.submitButton,
+                (!ownerName || !vehicleNumber || !frontImage || !backImage) && styles.disabledButton
+              ]}
+              onPress={handleSubmit}
+              disabled={!ownerName || !vehicleNumber || !frontImage || !backImage}
+            >
+              <Text style={styles.submitButtonText}>Submit</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 24,
+  },
+  header: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    marginBottom: 16,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#111827',
+    textAlign: 'center',
+  },
+  form: {
+    paddingHorizontal: 20,
+  },
+  inputGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  dropdown: {
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: '#111827',
+  },
+  input: {
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    fontSize: 16,
+    color: '#111827',
+    backgroundColor: 'white',
+  },
+  section: {
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  uploadContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  uploadButton: {
+    width: '48%',
+    height: 140,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+  },
+  uploadedButton: {
+    borderStyle: 'solid',
+    borderColor: '#10B981',
+    backgroundColor: '#ECFDF5',
+  },
+  uploadedImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 10,
+  },
+  uploadButtonText: {
+    marginTop: 8,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#4F46E5',
+  },
+  submitButton: {
+    height: 56,
+    backgroundColor: '#4F46E5',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+    shadowColor: '#4F46E5',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  disabledButton: {
+    backgroundColor: '#9CA3AF',
+    shadowColor: 'transparent',
+  },
+  submitButtonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: 'white',
+  },
+});
+
+export default VehicleRCForm;

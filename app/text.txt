@@ -1,1 +1,115 @@
-API Error: {"detail": "Key (email)=(rajeev_sharma15@outlook.com) already exists.", "error": "django.db.utils.IntegrityError"}
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+
+const VerificationScreen = () => {
+  const steps = [
+    { id: 1, title: 'Driving License', completed: false },
+    { id: 2, title: 'Profile Info', completed: false },
+    { id: 3, title: 'Vehicle RC', completed: false },
+    { id: 4, title: 'Aadhaar/PAN card', completed: false },
+  ];
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Please complete all the steps to activate your account</Text>
+      
+      <View style={styles.stepsContainer}>
+        {steps.map((step, index) => (
+          <View key={step.id} style={styles.stepItem}>
+            <View style={styles.stepIndicator}>
+              {step.completed ? (
+                <MaterialIcons name="check-circle" size={24} color="#4CAF50" />
+              ) : (
+                <View style={styles.circle} />
+              )}
+            </View>
+            
+            <Text style={styles.stepTitle}>{step.title}</Text>
+            
+            {index !== steps.length - 1 && (
+              <View style={styles.connector} />
+            )}
+          </View>
+        ))}
+      </View>
+      
+      <TouchableOpacity style={styles.button}>
+        <Text style={styles.buttonText}>Continue Verification</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 30,
+    textAlign: 'center',
+    color: '#333',
+  },
+  stepsContainer: {
+    marginBottom: 40,
+  },
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  stepIndicator: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  circle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#888',
+  },
+  stepTitle: {
+    fontSize: 16,
+    color: '#444',
+    flex: 1,
+  },
+  connector: {
+    position: 'absolute',
+    left: 14,
+    top: 30,
+    bottom: -15,
+    width: 2,
+    backgroundColor: '#ddd',
+  },
+  button: {
+    backgroundColor: '#4285F4',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
+export default VerificationScreen;
+
+
+
+
+
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQzNTgzNzcxLCJpYXQiOjE3NDM0MTA5NzEsImp0aSI6IjI1ZTAyZGFiM2Y1NzQ2YmRhZjA1YTZjNmZhYTNiZTEwIiwidXN
+lcl9pZCI6MzJ9.ZAc5RP5CEMu8WHWXHNC5LmL0icPOuwXHOkShLIy-Rpw
+
+

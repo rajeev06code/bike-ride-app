@@ -22,98 +22,179 @@ export default function AuthStack() {
   };
   return (
     <Stack>
-    <Stack.Screen name="index" options={{ headerShown: false }} />
-    <Stack.Screen
-      name="OnboardForm"
-      options={{
-        headerTitle: "",
-        headerShown:true,
-        // headerStyle:{backgroundColor:"grey"},
-
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={handleCallPress}
-            style={styles.buttonContainer}
-          >
-            <Image
-              source={require("../../assets/images/support.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />{" "}
-            <Text style={styles.buttonText}>Help</Text>
-          </TouchableOpacity>
-        ),
-      }}
-    />
-    <Stack.Screen
-      name="OtpScreen"
-      options={{
-        headerTitle: "",
-        headerShown: true,
-        // headerStyle:{backgroundColor:"grey"},
-
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={handleCallPress}
-            style={styles.buttonContainer}
-          >
-            <Image
-              source={require("../../assets/images/support.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />{" "}
-            <Text style={styles.buttonText}>Help</Text>
-          </TouchableOpacity>
-        ),
-      }}
-    />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
-      name="LanguageSelectionScreen"
-      options={{
-        headerTitle: "",
-        headerShown: true,
-        headerBackVisible:false,
-        // headerStyle:{backgroundColor:"grey"},
+        name="OnboardForm"
+        options={{
+          headerTitle: "",
+          headerShown: true,
 
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={handleCallPress}
-            style={styles.buttonContainer}
-          >
-            <Image
-              source={require("../../assets/images/support.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />{" "}
-            <Text style={styles.buttonText}>Help</Text>
-          </TouchableOpacity>
-        ),
-      }}
-    />
-    <Stack.Screen
-      name="VerificationScreen"
-      options={{
-        headerTitle: "",
-        headerShown: true,
-        headerBackVisible:false,
-        // headerStyle:{backgroundColor:"grey"},
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="OtpScreen"
+        options={{
+          headerTitle: "",
+          headerShown: true,
 
-        headerRight: () => (
-          <TouchableOpacity
-            onPress={handleCallPress}
-            style={styles.buttonContainer}
-          >
-            <Image
-              source={require("../../assets/images/support.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />{" "}
-            <Text style={styles.buttonText}>Help</Text>
-          </TouchableOpacity>
-        ),
-      }}
-    />
-  </Stack>
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="LanguageSelectionScreen"
+        options={{
+          headerTitle: "",
+          headerShown: true,
+          headerBackVisible: false,
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Stack.Screen
+        name="VerificationScreen"
+        options={{
+          headerTitle: "",
+          headerShown: true,
+          headerBackVisible: false,
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+       <Stack.Screen
+        name="ProfileInfo"
+        options={{
+          headerTitle: "Profile Info",
+          headerShown: true,
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+         <Stack.Screen
+        name="DrivingLicense"
+        options={{
+          headerTitle: "Driving License",
+          headerShown: true,
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+           <Stack.Screen
+        name="AadhaarPan"
+        options={{
+          headerTitle: "Aadhaar/PAN",
+          headerShown: true,
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+        <Stack.Screen
+        name="RcInfo"
+        options={{
+          headerTitle: "Vehicle Rc",
+          headerShown: true,
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+    </Stack>
+    
   );
 }
 
@@ -124,19 +205,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: 14,
     paddingVertical: 6,
-    backgroundColor: "#f0f0f0", // Light gray background
-    borderRadius: 20, // Rounded corners
+    backgroundColor: "#f0f0f0",
+    borderRadius: 20,
     marginRight: 15,
   },
   icon: {
     width: 23,
     height: 23,
     tintColor: "#333",
-    marginRight: 6, // Space between icon and text
+    marginRight: 6,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333", // Dark gray text
+    color: "#333",
   },
 });

@@ -1,27 +1,31 @@
-import { requestOTP } from "@/services/auth";
-import { Link, router } from "expo-router";
 import React, { useState } from "react";
-import { Alert } from "react-native";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
-import Config from "react-native-config";
-import Icon from "react-native-vector-icons/FontAwesome";
+import { Ionicons } from "@expo/vector-icons";
+import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { requestOTP } from "@/services/auth";
 
 const PhoneNumberScreen = () => {
-  const [email, setEmail] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [useFormData, setUseFormData] = useState<boolean>(false);
 
   const handleRequestOTP = async () => {
-    if (!email) {
-      setError("Email is required");
+    if (!phoneNumber) {
+      setError("Phone number is required");
+      return;
+    }
+
+    if (phoneNumber.length !== 10) {
+      setError("Please enter a valid 10-digit phone number");
       return;
     }
 
@@ -29,64 +33,91 @@ const PhoneNumberScreen = () => {
     setError(null);
 
     try {
-      const response = await requestOTP(email, "driver");
+      const response = await requestOTP(phoneNumber, "driver");
       if (response.status === 200) {
         router.navigate({
           pathname: "/OtpScreen",
-          params: { email: email }
+          params: { phoneNumber: `+91${phoneNumber}` },
         });
-        // router.navigate("/OtpScreen");
       }
-      console.log(response);
     } catch (err: any) {
-      Alert.alert(err.message || "An error occurred");
+      Alert.alert("Error", err.message || "Failed to send OTP");
       setError(err?.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
   };
 
+  const clearToken = async () => {
+    await AsyncStorage.removeItem("access_token");
+    Alert.alert("Success", "Access token cleared");
+  };
+
   return (
     <View style={styles.container}>
-      <View>
-        <View style={styles.headerContainer}>
-          <Icon name="mobile-phone" size={50} />
-          <Text style={styles.title}>Enter your Email to Drive</Text>
-        </View>
-        
-        <View style={styles.emailInputContainer}>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <Ionicons name="phone-portrait-outline" size={48} color="#FF9933" />
+        <Text style={styles.title}>Enter Your Phone Number</Text>
+        <Text style={styles.subtitle}>
+          We'll send you a verification code to get started
+        </Text>
+      </View>
+
+      {/* Phone Input Section */}
+      <View style={styles.inputContainer}>
+        <View style={styles.phoneInputWrapper}>
+          <View style={styles.countryCode}>
+            <Text style={styles.countryCodeText}>+91</Text>
+          </View>
           <TextInput
-            style={styles.emailInput}
-            placeholder="xyz@email.com"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            autoCorrect={false}
+            style={styles.phoneInput}
+            placeholder="Enter 10-digit number"
+            placeholderTextColor="#9CA3AF"
+            keyboardType="phone-pad"
+            value={phoneNumber}
+            onChangeText={(text) => {
+              setPhoneNumber(text.replace(/[^0-9]/g, ""));
+              setError(null);
+            }}
+            maxLength={10}
           />
         </View>
+        {error && <Text style={styles.errorText}>{error}</Text>}
       </View>
-      
-      <View>
-        <Link href="/OtpScreen" asChild>
+
+      {/* Action Buttons */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.primaryButton, loading && styles.disabledButton]}
+          onPress={handleRequestOTP}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.primaryButtonText}>Continue</Text>
+          )}
+        </TouchableOpacity>
+
+        {/* Developer Button - Hidden in production */}
+        {__DEV__ && (
           <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={handleRequestOTP}
-            disabled={loading}
+            style={styles.devButton}
+            onPress={clearToken}
           >
-            <Text style={styles.primaryButtonText}>
-              {loading ? "Processing..." : "Proceed"}
-            </Text>
+            <Text style={styles.devButtonText}>Clear Token (Dev)</Text>
           </TouchableOpacity>
-        </Link>
-        
-        <View style={styles.termsContainer}>
-          <Text>
-            Please read our
-            <Text style={styles.termsLink}> terms and conditions </Text>before
-            proceeding.
-          </Text>
-        </View>
+        )}
+      </View>
+
+      {/* Terms and Conditions */}
+      <View style={styles.termsContainer}>
+        <Text style={styles.termsText}>
+          By continuing, you agree to our{" "}
+          <Text style={styles.termsLink}>Terms of Service</Text> and{" "}
+          <Text style={styles.termsLink}>Privacy Policy</Text>
+        </Text>
       </View>
     </View>
   );
@@ -94,60 +125,113 @@ const PhoneNumberScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
-    height: "100%",
-    padding: 20,
-    justifyContent: "space-between",
-    backgroundColor: "white",
+    flex: 1,
+    backgroundColor: "#F9FAFB",
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 32,
   },
-  headerContainer: {
-    display: "flex",
-    width: "100%",
-    flexDirection: "row",
-    gap: 10,
+  header: {
     alignItems: "center",
-    height: 60,
-    marginBottom: 20,
+    marginBottom: 48,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#111827",
+    marginTop: 16,
+    marginBottom: 8,
   },
-  emailInputContainer: {
+  subtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: "center",
+    maxWidth: 300,
+  },
+  inputContainer: {
+    marginBottom: 32,
+  },
+  phoneInputWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    height: 56,
     borderWidth: 1,
-    borderColor: "gray",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 20,
+    borderColor: "#E5E7EB",
   },
-  emailInput: {
+  countryCode: {
+    paddingRight: 12,
+    borderRightWidth: 1,
+    borderRightColor: "#E5E7EB",
+    marginRight: 12,
+  },
+  countryCodeText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#111827",
+  },
+  phoneInput: {
     flex: 1,
-    height: 40,
-    paddingHorizontal: 10,
+    fontSize: 16,
+    color: "#111827",
+    height: "100%",
   },
-  termsContainer: {
-    marginBottom: 10,
-    paddingHorizontal: 5,
+  errorText: {
+    color: "#EF4444",
+    fontSize: 14,
+    marginTop: 8,
+    marginLeft: 4,
   },
-  termsLink: {
-    color: "blue",
+  buttonContainer: {
+    marginBottom: 24,
   },
   primaryButton: {
-    backgroundColor: "#F08200",
-    padding: 15,
+    backgroundColor:"#FF9933",
+    borderRadius: 12,
+    height: 56,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 15,
-    borderRadius: 25,
+    shadowColor: "#4F46E5",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  disabledButton: {
+    backgroundColor: "#9CA3AF",
+    shadowColor: "transparent",
   },
   primaryButtonText: {
     color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  devButton: {
+    marginTop: 16,
+    padding: 12,
+    alignItems: "center",
+  },
+  devButtonText: {
+    color: "#EF4444",
+    fontSize: 14,
+  },
+  termsContainer: {
+    marginTop: "auto",
+    paddingHorizontal: 16,
+  },
+  termsText: {
+    color: "#6B7280",
+    fontSize: 14,
+    textAlign: "center",
+  },
+  termsLink: {
+    color: "#4F46E5",
+    fontWeight: "500",
   },
 });
 
