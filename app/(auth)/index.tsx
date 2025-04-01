@@ -68,14 +68,21 @@ const AuthScreen = () => {
 
         <View style={styles.bottomContainer}>
           <TouchableOpacity onPress={() => handlePageChange("back")}>
-            <Icon name="chevron-left" size={40} color={currentPage > 0 ? "#F08200" : "#D9D9D9"} />
+            <Icon
+              name="chevron-left"
+              size={40}
+              color={currentPage > 0 ? "#F08200" : "#D9D9D9"}
+            />
           </TouchableOpacity>
 
           <View style={styles.indicatorContainer}>
             {slides.map((_, index) => (
               <Animated.View
                 key={index}
-                style={[styles.indicator, currentPage === index && styles.activeIndicator]}
+                style={[
+                  styles.indicator,
+                  currentPage === index && styles.activeIndicator,
+                ]}
               />
             ))}
           </View>
@@ -86,7 +93,12 @@ const AuthScreen = () => {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity style={styles.registerButton}>
-              <Link href="/OnboardForm" style={styles.registerButtonText}>Start Driving</Link>
+              <Link 
+              // href="/OnboardForm" 
+              href="/VerificationScreen"
+               style={styles.registerButtonText}>
+                Start Driving
+              </Link>
             </TouchableOpacity>
           )}
         </View>
@@ -101,15 +113,55 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   safeContainer: { flex: 1, justifyContent: "center" },
   viewPager: { flex: 1 },
-  slide: { alignItems: "center", justifyContent: "center", paddingHorizontal: 20 },
-  mockupImage: { width: width * 0.8, height: height * 0.5, resizeMode: "contain" },
-  title: { fontSize: 26, fontWeight: "bold", color: "#000", textAlign: "center", marginTop: 20 },
-  description: { fontSize: 16, color: "#666", textAlign: "center", marginTop: 10 },
-  bottomContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 20 },
+  slide: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  mockupImage: {
+    width: width * 0.8,
+    height: height * 0.5,
+    resizeMode: "contain",
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  description: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 10,
+  },
+  bottomContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+  },
   indicatorContainer: { flexDirection: "row", alignItems: "center" },
-  indicator: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#D9D9D9", marginHorizontal: 5 },
-  activeIndicator: { backgroundColor: "#F08200", width: 16, height: 8, borderRadius: 4 },
-  registerButton: { backgroundColor: "#F08200", paddingVertical: 12, paddingHorizontal: 25, borderRadius: 25 },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#D9D9D9",
+    marginHorizontal: 5,
+  },
+  activeIndicator: {
+    backgroundColor: "#F08200",
+    width: 16,
+    height: 8,
+    borderRadius: 4,
+  },
+  registerButton: {
+    backgroundColor: "#F08200",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+  },
   registerButtonText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
 });
 

@@ -101,12 +101,6 @@ const VerificationScreen = () => {
             Complete all steps to activate your account
           </Text>
         </View>
-        <View style={styles.progressIndicator}>
-          <Text style={styles.progressText}>0/4 Completed</Text>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: "0%" }]} />
-          </View>
-        </View>
       </View>
 
       {/* Verification Steps List */}
@@ -114,30 +108,29 @@ const VerificationScreen = () => {
         {verificationSteps.map((step) => (
           <TouchableOpacity
             key={step.id}
-            style={[
-              styles.stepCard,
-              step.isLocked && styles.lockedCard,
-            ]}
+            style={[styles.stepCard, step.isLocked && styles.lockedCard]}
             onPress={() => handleStepPress(step.id)}
             disabled={step.isLocked}
           >
             <View style={styles.stepIconContainer}>
-              <Ionicons 
-                name={step.icon} 
-                size={24} 
-                color={step.isLocked ? "#9CA3AF" : "#4F46E5"} 
+              <Ionicons
+                name={step.icon}
+                size={24}
+                color={step.isLocked ? "#9CA3AF" : "#F08200"}
               />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={[styles.stepTitle, step.isLocked && styles.lockedText]}>
+              <Text
+                style={[styles.stepTitle, step.isLocked && styles.lockedText]}
+              >
                 {step.title}
               </Text>
               <Text style={styles.stepStatus}>{step.status}</Text>
             </View>
-            <Ionicons 
-              name={step.isLocked ? "lock-closed" : "chevron-forward"} 
-              size={20} 
-              color={step.isLocked ? "#9CA3AF" : "#6B7280"} 
+            <Ionicons
+              name={step.isLocked ? "lock-closed" : "chevron-forward"}
+              size={20}
+              color={step.isLocked ? "#9CA3AF" : "#6B7280"}
             />
           </TouchableOpacity>
         ))}
@@ -145,7 +138,7 @@ const VerificationScreen = () => {
 
       {/* Help Section */}
       <View style={styles.helpSection}>
-        <Ionicons name="help-circle-outline" size={24} color="#4F46E5" />
+        <Ionicons name="help-circle-outline" size={24} color="black" />
         <Text style={styles.helpText}>Need help with verification?</Text>
       </View>
     </SafeAreaView>
@@ -158,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
   },
   banner: {
-    backgroundColor: "#4F46E5",
+    backgroundColor: "#F08200",
     padding: 24,
     paddingBottom: 32,
   },
@@ -196,7 +189,7 @@ const styles = StyleSheet.create({
   },
   stepsContainer: {
     padding: 20,
-    marginTop: -24,
+    marginTop: 15,
   },
   stepCard: {
     flexDirection: "row",
@@ -251,7 +244,7 @@ const styles = StyleSheet.create({
   },
   helpText: {
     fontSize: 16,
-    color: "#4F46E5",
+    color: "black",
     marginLeft: 8,
     fontWeight: "500",
   },

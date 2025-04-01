@@ -17,6 +17,7 @@ import { Picker } from "@react-native-picker/picker";
 
 import ImageUploader from "@/components/UploadImageComponent";
 import PhotoSelectionModal from "@/components/PhotoSelectionModal;";
+import { openCamera, openImagePicker } from "@/utils/imageUtils";
 
 type IDType = "AADHAAR" | "PAN";
 
@@ -34,15 +35,17 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [documentNumber, setDocumentNumber] = useState("");
   const [selectedID, setSelectedID] = useState<IDType>("AADHAAR");
-  const [frontImage, setFrontImage] = useState<string | null>(null);
   const [backImage, setBackImage] = useState<string | null>(null);
+  const [frontImage, setFrontImage] = useState<string | null>(null);
+  const [frontmodalVisible, setFrontModalVisible] = useState(false);
+  const [backmodalVisible, setBackModalVisible] = useState(false);
 
   const handleSubmit = () => {
     if (!documentNumber || !frontImage || !backImage) {
       Alert.alert("Error", "Please fill all fields and upload both images");
       return;
     }
-    
+
     onSubmit({
       idType: selectedID,
       documentNumber,
@@ -50,7 +53,44 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
       backImage,
     });
   };
-
+  const handleUploadFrontPhotoFromGallery = async () => {
+    const responseImage = await openImagePicker({
+      aspect: [1, 1],
+      allowsEditing: true,
+    });
+    if (responseImage) {
+      setFrontImage(responseImage);
+    }
+    setFrontModalVisible(false);
+  };
+  const handleUploadBackPhotoFromGallery = async () => {
+    const responseImage = await openImagePicker({
+      aspect: [1, 1],
+      allowsEditing: true,
+    });
+    if (responseImage) {
+      setBackImage(responseImage);
+    }
+    setBackModalVisible(false);
+  };
+  const handleTakeFrontPhotoPhoto = async () => {
+    const responseImage = await openCamera({
+      quality: 1,
+    });
+    if (responseImage) {
+      setFrontImage(responseImage);
+    }
+    setFrontModalVisible(false);
+  };
+  const handleTakeBackPhotoPhoto = async () => {
+    const responseImage = await openCamera({
+      quality: 1,
+    });
+    if (responseImage) {
+      setBackImage(responseImage);
+    }
+    setBackModalVisible(false);
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -58,11 +98,10 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
         style={styles.keyboardAvoidView}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
         >
-         
           {/* Select ID Type */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Select ID Type</Text>
@@ -85,16 +124,68 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
               Upload {selectedID === "AADHAAR" ? "Aadhaar" : "PAN"} Images
             </Text>
             <View style={styles.uploadContainer}>
-              <ImageUploader
-                label="FRONT SIDE"
-                onImageSelected={setFrontImage}
-                image={frontImage}
-              />
-              <ImageUploader
-                label="BACK SIDE"
-                onImageSelected={setBackImage}
-                image={backImage}
-              />
+              <TouchableOpacity
+                style={[
+                  styles.uploadButton,
+                  // frontImage && styles.uploadedButton,
+                ]}
+                onPress={() => {
+                  setFrontModalVisible(true);
+                }}
+              >
+                {frontImage ? (
+                  <View style={styles.imageContainer}>
+                    <Image
+                      source={{ uri: frontImage }}
+                      style={styles.aadhaarImage}
+                      resizeMode="cover"
+                    />
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => setFrontImage(null)}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <>
+                    <Ionicons name="image-outline" size={32} color="#4F46E5" />
+                    <Text style={styles.uploadButtonText}>FRONT SIDE</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.uploadButton,
+                  frontImage && styles.uploadedButton,
+                ]}
+                onPress={() => {
+                  setBackModalVisible(true);
+                }}
+              >
+                {backImage ? (
+                  <View style={styles.imageContainer}>
+                    <Image
+                      source={{ uri: backImage }}
+                      style={styles.aadhaarImage}
+                      resizeMode="cover"
+                    />
+
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => setBackImage(null)}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <>
+                    <Ionicons name="image-outline" size={32} color="#4F46E5" />
+                    <Text style={styles.uploadButtonText}>BACK SIDE</Text>
+                  </>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -106,8 +197,8 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
             <TextInput
               style={styles.input}
               placeholder={
-                selectedID === "AADHAAR" 
-                  ? "Eg: 1234 5678 9012" 
+                selectedID === "AADHAAR"
+                  ? "Eg: 1234 5678 9012"
                   : "Eg: ABCDE1234F"
               }
               placeholderTextColor="#9CA3AF"
@@ -125,19 +216,34 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
 
           {/* Photo Selection Modal */}
           <PhotoSelectionModal
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-            onCameraPress={() => console.log("Camera pressed")}
-            onGalleryPress={() => console.log("Gallery pressed")}
-            onRemovePress={() => console.log("Remove pressed")}
-            title="Choose Image"
+            visible={frontmodalVisible}
+            onClose={() => setFrontModalVisible(false)}
+            onCameraPress={handleTakeFrontPhotoPhoto}
+            onGalleryPress={handleUploadFrontPhotoFromGallery}
+            onRemovePress={() => {
+              setFrontImage(null);
+              setFrontModalVisible(false);
+            }}
+            title="Update Profile Photo"
+          />
+          <PhotoSelectionModal
+            visible={backmodalVisible}
+            onClose={() => setBackModalVisible(false)}
+            onCameraPress={handleTakeBackPhotoPhoto}
+            onGalleryPress={handleUploadBackPhotoFromGallery}
+            onRemovePress={() => {
+              setBackImage(null);
+              setBackModalVisible(false);
+            }}
+            title="Update Profile Photo"
           />
 
           {/* Submit Button */}
           <TouchableOpacity
             style={[
               styles.submitButton,
-              (!documentNumber || !frontImage || !backImage) && styles.disabledButton,
+              (!documentNumber || !frontImage || !backImage) &&
+                styles.disabledButton,
             ]}
             onPress={handleSubmit}
             disabled={!documentNumber || !frontImage || !backImage}
@@ -157,6 +263,26 @@ const styles = StyleSheet.create({
   },
   keyboardAvoidView: {
     flex: 1,
+  },
+  uploadButton: {
+    width: "100%",
+    height: 140,
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "#D1D5DB",
+
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#F3F4F6",
+  },
+  aadhaarImage: {
+    width: "100%",
+    height: 140,
+
+    borderRadius: 12,
+    objectFit: "cover",
+    // backgroundColor: "#F3F4F6",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -203,9 +329,31 @@ const styles = StyleSheet.create({
     color: "#111827",
   },
   uploadContainer: {
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "space-between",
     gap: 16,
+  },
+  imageContainer: {
+    width: "100%",
+    height: 140,
+    borderRadius: 12,
+    position: "relative",
+  },
+  removeButton: {
+    position: "absolute",
+    top: -20,
+    right: -10,
+    backgroundColor: "white",
+    borderRadius: "50%",
+    padding: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   input: {
     height: 56,
@@ -224,7 +372,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     height: 56,
-    backgroundColor: "#4F46E5",
+    backgroundColor:"#F08200",
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
