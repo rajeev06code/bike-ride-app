@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -10,10 +10,15 @@ import {
   Platform,
   ScrollView,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import PhotoSelectionModal from "@/components/PhotoSelectionModal;";
 import { openCamera, openImagePicker } from "@/utils/imageUtils";
+import { imagePickerResponseType } from "@/utils/types/typeUtils";
+import { validateDL, validateVehicleNUmber } from "@/utils/validationUtils";
+import { fileUploadForm } from "@/services/auth";
+import { router } from "expo-router";
 
 type DrivingLicenseScreenProps = {
   onClose: () => void;
@@ -33,8 +38,10 @@ const DrivingLicenseScreen: React.FC<DrivingLicenseScreenProps> = ({
   const [licenseNumber, setLicenseNumber] = useState("");
   const [frontImageUploaded, setFrontImageUploaded] = useState(false);
   const [backImageUploaded, setBackImageUploaded] = useState(false);
-  const [backImage, setBackImage] = useState<string | null>(null);
-  const [frontImage, setFrontImage] = useState<string | null>(null);
+  const [backImage, setBackImage] = useState<imagePickerResponseType>();
+  const [frontImage, setFrontImage] = useState<imagePickerResponseType>();
+  const [licenseError, setLicenseError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFrontUpload = () => {
     setFrontImageUploaded(true);
@@ -44,13 +51,22 @@ const DrivingLicenseScreen: React.FC<DrivingLicenseScreenProps> = ({
     setBackImageUploaded(true);
   };
 
-  const handleSubmit = () => {
-    onSubmit({
-      licenseNumber,
-      frontImageUploaded,
-      backImageUploaded,
-    });
-  };
+  // const handleSubmit = () => {
+  //   if (!licenseNumber) {
+  //     setLicenseError("Please enter your driving license number.");
+  //     return;
+  //   } else if (!/^[A-Z]{2}[0-9]{13}$/i.test(licenseNumber)) {
+  //     setLicenseError("Invalid license number format.");
+  //     return;
+  //   }
+
+  //   setLicenseError(null);
+  //   onSubmit({
+  //     licenseNumber,
+  //     frontImageUploaded,
+  //     backImageUploaded,
+  //   });
+  // };
   const handleUploadFrontPhotoFromGallery = async () => {
     const responseImage = await openImagePicker({
       aspect: [1, 1],
@@ -89,115 +105,154 @@ const DrivingLicenseScreen: React.FC<DrivingLicenseScreenProps> = ({
     }
     setBackModalVisible(false);
   };
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const handleInputFocus = () => {
+    // Scroll to the input field when focused
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
+  const handleSubmitDl = async () => {
+    setLoading(true);
+ 
+    if (!validateDL(licenseNumber)) {
+     
+      setLoading(false);
+      setLicenseError("Invalid license number.");
+      return;
+    }
+
+    try {
+      const response = await fileUploadForm(
+        "DL",
+        "",
+        licenseNumber,
+        frontImage,
+        backImage
+      );
+      if (response.status === 200) {
+        setLoading(false);
+        router.navigate("/VerificationScreen");
+      }
+    } catch (error) {
+      setLoading(false);
+      Alert.alert("Error", "Failed to submit form");
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidView}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
         <ScrollView
+          ref={scrollViewRef}
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets={true}
+          showsVerticalScrollIndicator={false}
         >
           {/* Front Side Upload Section */}
-          <View style={styles.uploadSection}>
-            {frontImage ? (
+
+          {frontImage ? (
+            <View style={styles.uploadSectionImage}>
               <Image
-                source={{ uri: frontImage }}
-                style={styles.dlfront}
+                source={{ uri: frontImage.uri }}
+                style={styles.aadhaarImage}
                 resizeMode="cover"
               />
-            ) : (
-              <>
-                {" "}
-                <View style={styles.uploadIconContainer}>
-                  <Ionicons
-                    name="document-outline"
-                    size={32}
-                    color={backImageUploaded ? "#4F46E5" : "#9CA3AF"}
-                  />
-                </View>
-                <Text style={styles.uploadTitle}>Back side of your DL</Text>
-                <Text style={styles.uploadSubtitle}>
-                  Upload the back side even if it is blank
-                </Text>
-                <Text style={styles.uploadTitle}>Front side of your DL</Text>
-              </>
-            )}
-          
-            <TouchableOpacity
-              style={[
-                styles.uploadButton,
-               
-                  styles.uploadButtonPrimary,
-              ]}
-              onPress={() => setFrontModalVisible(true)}
-            >
-              <Ionicons
-                name={"cloud-upload"}
-                size={18}
-                color={ "white"}
-              />
-              <Text
-                style={[
-                  styles.uploadButtonText,
-                  // frontImage && styles.uploadButtonTextSuccess,
-                ]}
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => setFrontImage(null)}
               >
-                {frontImage ? "Change Photo" : "Upload Photo"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Ionicons name="close-circle" size={24} color="#EF4444" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.uploadSection}>
+              <View style={styles.uploadIconContainer}>
+                <Ionicons
+                  name="document-outline"
+                  size={32}
+                  color={backImageUploaded ? "#4F46E5" : "#9CA3AF"}
+                />
+              </View>
+              <Text style={styles.uploadTitle}>Back side of your DL</Text>
+
+              <TouchableOpacity
+                style={[styles.uploadButton, styles.uploadButtonPrimary]}
+                onPress={() => setFrontModalVisible(true)}
+              >
+                <Ionicons name={"cloud-upload"} size={18} color={"white"} />
+                <Text
+                  style={[
+                    styles.uploadButtonText,
+                    // frontImage && styles.uploadButtonTextSuccess,
+                  ]}
+                >
+                  {frontImage ? "Change Photo" : "Upload Photo"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Back Side Upload Section */}
-          <View style={styles.uploadSection}>
-            {backImage ? (
+          {/* <View style={styles.uploadSection}> */}
+          {backImage ? (
+            <View style={styles.uploadSectionImage}>
               <Image
-                source={{ uri: backImage }}
-                style={styles.dlfront}
+                source={{ uri: backImage.uri }}
+                style={styles.aadhaarImage}
                 resizeMode="cover"
               />
-            ) : (
-              <>
-                {" "}
-                <View style={styles.uploadIconContainer}>
-                  <Ionicons
-                    name="document-outline"
-                    size={32}
-                    color={backImageUploaded ? "#4F46E5" : "#9CA3AF"}
-                  />
-                </View>
-                <Text style={styles.uploadTitle}>Back side of your DL</Text>
-                <Text style={styles.uploadSubtitle}>
-                  Upload the back side even if it is blank
-                </Text>
-              </>
-            )}
-
-            <TouchableOpacity
-              style={[
-                styles.uploadButton,
-                backImageUploaded
-                  ? styles.uploadButtonSuccess
-                  : styles.uploadButtonPrimary,
-              ]}
-              onPress={() => setBackModalVisible(true)}
-            >
-              <Ionicons
-                name={backImageUploaded ? "checkmark-circle" : "cloud-upload"}
-                size={18}
-                color={backImageUploaded ? "#10B981" : "white"}
-              />
-              <Text
-                style={[
-                  styles.uploadButtonText,
-                  backImageUploaded && styles.uploadButtonTextSuccess,
-                ]}
+              <TouchableOpacity
+                style={styles.removeButton}
+                onPress={() => setBackImage(null)}
               >
-                {backImageUploaded ? "Uploaded" : "Upload Photo"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+                <Ionicons name="close-circle" size={24} color="#EF4444" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.uploadSection}>
+              <View style={styles.uploadIconContainer}>
+                <Ionicons
+                  name="document-outline"
+                  size={32}
+                  color={backImageUploaded ? "#4F46E5" : "#9CA3AF"}
+                />
+              </View>
+              <Text style={styles.uploadTitle}>Back side of your DL</Text>
+              <TouchableOpacity
+                style={[
+                  styles.uploadButton,
+                  backImageUploaded
+                    ? styles.uploadButtonSuccess
+                    : styles.uploadButtonPrimary,
+                ]}
+                onPress={() => setBackModalVisible(true)}
+              >
+                <Ionicons
+                  name={backImageUploaded ? "checkmark-circle" : "cloud-upload"}
+                  size={18}
+                  color={backImageUploaded ? "#10B981" : "white"}
+                />
+                <Text
+                  style={[
+                    styles.uploadButtonText,
+                    backImageUploaded && styles.uploadButtonTextSuccess,
+                  ]}
+                >
+                  {backImageUploaded ? "Uploaded" : "Upload Photo"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {/* </View> */}
 
           {/* License Number Input */}
           <View style={styles.inputSection}>
@@ -209,6 +264,7 @@ const DrivingLicenseScreen: React.FC<DrivingLicenseScreenProps> = ({
                 placeholderTextColor="#9CA3AF"
                 value={licenseNumber}
                 onChangeText={setLicenseNumber}
+                onFocus={handleInputFocus}
               />
               <TouchableOpacity style={styles.infoButton}>
                 <Ionicons
@@ -219,6 +275,9 @@ const DrivingLicenseScreen: React.FC<DrivingLicenseScreenProps> = ({
               </TouchableOpacity>
             </View>
             <Text style={styles.inputExample}>Example: KA123456778990Z9</Text>
+            {licenseError && (
+              <Text style={{ color: "red" }}>{licenseError}</Text>
+            )}
           </View>
           <PhotoSelectionModal
             visible={frontmodalVisible}
@@ -249,12 +308,14 @@ const DrivingLicenseScreen: React.FC<DrivingLicenseScreenProps> = ({
               (!licenseNumber || !frontImage || !backImage) &&
                 styles.disabledButton,
             ]}
-            onPress={handleSubmit}
-            disabled={
-              !licenseNumber || !frontImage || !backImage
-            }
+            onPress={handleSubmitDl}
+            disabled={!licenseNumber || !frontImage || !backImage}
           >
-            <Text style={styles.submitButtonText}>Submit</Text>
+            {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.submitButtonText}>Submit</Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -273,8 +334,8 @@ const styles = StyleSheet.create({
   dlfront: {
     width: "100%",
     height: 100,
-    borderRadius:5,
-    objectFit:"cover"
+    borderRadius: 5,
+    objectFit: "cover",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -310,6 +371,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
   },
+  uploadSectionImage: {
+    margin: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    padding: 0,
+    height: 200,
+    backgroundColor: "white",
+    alignItems: "center",
+  },
   uploadIconContainer: {
     width: 64,
     height: 64,
@@ -326,6 +396,33 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textAlign: "center",
   },
+  imageContainer: {
+    width: "100%",
+    height: 140,
+    borderRadius: 12,
+    position: "relative",
+  },
+  removeButton: {
+    position: "absolute",
+    top: -20,
+    right: -10,
+    backgroundColor: "white",
+    borderRadius: "50%",
+    padding: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+  },
+  aadhaarImage: {
+    width: "100%",
+    height: "100%",
+
+    borderRadius: 12,
+    objectFit: "cover",
+    // backgroundColor: "#F3F4F6",
+  },
   uploadSubtitle: {
     fontSize: 14,
     color: "#6B7280",
@@ -340,7 +437,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 8,
     width: "100%",
-    marginTop:10,
+    marginTop: 10,
   },
   uploadButtonPrimary: {
     backgroundColor: "grey",
@@ -383,8 +480,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: "100%",
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     fontSize: 16,
+    fontWeight: "bold",
     color: "#111827",
   },
   infoButton: {

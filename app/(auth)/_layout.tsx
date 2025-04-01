@@ -199,6 +199,33 @@ export default function AuthStack() {
           ),
         }}
       />
+       <Stack.Screen
+        name="PaymentInfo"
+        options={{
+          headerTitle: "Add Bank Details",
+          headerShown: true,
+          headerTitleStyle: {
+            fontSize: 20,
+            fontWeight: '600', // or 'bold' for thicker text
+            color: '#1F2937', // dark gray color
+            fontFamily: 'Inter-SemiBold', // if using custom font (make sure it's loaded)
+          },
+
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={handleCallPress}
+              style={styles.buttonContainer}
+            >
+              <Image
+                source={require("../../assets/images/support.png")}
+                style={styles.icon}
+                resizeMode="contain"
+              />
+              <Text style={styles.buttonText}>Help</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
     
   );

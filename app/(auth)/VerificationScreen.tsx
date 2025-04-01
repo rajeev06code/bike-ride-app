@@ -13,16 +13,29 @@ import {
 import React, { useState } from "react";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { useBackHandler } from "@/hooks/custom/useBackHandler";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Ionicons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { router } from "expo-router";
+import PaymentMethodDrawer from "@/components/PaymentMethodModal";
 
 const VerificationScreen = () => {
+  const [isDrawerVisible, setDrawerVisible] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState("");
   const navigation = useNavigation();
   const { handleBackPress } = useBackHandler({
     exitMessage: "Are you sure you want to exit?",
   });
-
+  const handleCloseDrawer = () => {
+    setDrawerVisible(false);
+  };
+  const handlex = (method) => {
+    router.navigate({
+      pathname: "/PaymentInfo",
+      params: { paymentMethod: method },
+    });
+    handleCloseDrawer();
+  };
   useFocusEffect(
     React.useCallback(() => {
       BackHandler.addEventListener("hardwareBackPress", handleBackPress);
@@ -91,6 +104,14 @@ const VerificationScreen = () => {
     if (stepId === "vehicle_rc") router.navigate("/RcInfo");
   };
 
+  const handleOpenDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const handleSelectMethod = (method) => {
+    setSelectedMethod(method);
+ 
+  };
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Banner */}
@@ -134,8 +155,31 @@ const VerificationScreen = () => {
             />
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          style={[styles.stepCard]}
+          onPress={handleOpenDrawer}
+          // disabled={step.isLocked}
+        >
+          <View style={styles.stepIconContainer}>
+            <MaterialCommunityIcons
+              name="bank-outline"
+              size={24}
+              color={"#F08200"}
+            />
+          </View>
+          <View style={styles.stepInfo}>
+            <Text style={[styles.stepTitle]}>Bank Account Info</Text>
+            {/* <Text style={styles.stepStatus}>{step.status}</Text> */}
+          </View>
+          <Ionicons name={"chevron-forward"} size={20} color={"#6B7280"} />
+        </TouchableOpacity>
       </View>
-
+      <PaymentMethodDrawer
+        visible={isDrawerVisible}
+        onClose={handleCloseDrawer}
+        onSelect={handleSelectMethod}
+        handleNavigate={handlex}
+      />
       {/* Help Section */}
       <View style={styles.helpSection}>
         <Ionicons name="help-circle-outline" size={24} color="black" />

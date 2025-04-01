@@ -51,6 +51,7 @@ const OTPScreen = () => {
         await AsyncStorage.setItem("access_token", JSON.stringify({ 
           access_token: response.data.access_token 
         }));
+      
         router.navigate("/LanguageSelectionScreen");
       }
     } catch (err: any) {

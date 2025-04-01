@@ -18,7 +18,7 @@ export default function RootLayout() {
    
     const getFromStorage = async () => {
       const stored = await AsyncStorage.getItem("access_token");
-      console.log(stored)
+     
       // if (stored) setIsLoggedIn(JSON.parse(stored));
     };
     

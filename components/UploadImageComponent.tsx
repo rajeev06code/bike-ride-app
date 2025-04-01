@@ -9,9 +9,7 @@ const ImageUploader = ({ label, onImageSelected }) => {
   const handleUpload = () => {
     launchCamera({ mediaType: "photo", quality: 1 }, (response) => {
       if (response.didCancel) {
-        console.log("User cancelled image picker");
       } else if (response.errorMessage) {
-        console.log("ImagePicker Error: ", response.errorMessage);
       } else {
         const selectedImage = response?.assets[0];
         setImage(selectedImage);

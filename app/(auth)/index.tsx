@@ -94,8 +94,8 @@ const AuthScreen = () => {
           ) : (
             <TouchableOpacity style={styles.registerButton}>
               <Link 
-              // href="/OnboardForm" 
-              href="/VerificationScreen"
+              href="/OnboardForm" 
+              // href="/VerificationScreen"
                style={styles.registerButtonText}>
                 Start Driving
               </Link>

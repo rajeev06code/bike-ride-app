@@ -1,6 +1,10 @@
 import PhotoSelectionModal from "@/components/PhotoSelectionModal;";
+import { fileUploadForm } from "@/services/auth";
 import { openCamera, openImagePicker } from "@/utils/imageUtils";
+import { imagePickerResponseType } from "@/utils/types/typeUtils";
+import { validateVehicleNUmber } from "@/utils/validationUtils";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   View,
@@ -16,6 +20,7 @@ import {
   Dimensions,
   Image,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -28,28 +33,37 @@ const VehicleRCForm = () => {
   const [vehicleNumber, setVehicleNumber] = useState("");
   const [frontImageUploaded, setFrontImageUploaded] = useState(false);
   const [backImageUploaded, setBackImageUploaded] = useState(false);
-  const [backImage, setBackImage] = useState<string | null>(null);
-  const [frontImage, setFrontImage] = useState<string | null>(null);
+  const [backImage, setBackImage] = useState<imagePickerResponseType>();
+  const [frontImage, setFrontImage] = useState<imagePickerResponseType>();
   const [frontmodalVisible, setFrontModalVisible] = useState(false);
   const [backmodalVisible, setBackModalVisible] = useState(false);
+  const [vehicleNumberError, setVehicleNumberError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
-    if (!ownerName || !vehicleNumber || !frontImage || !backImage) {
-      Alert.alert("Error", "Please fill all fields and upload both images");
+  const handleSubmitRc = async () => {
+    setLoading(true);
+
+    if (!validateVehicleNUmber(vehicleNumber)) {
+      setLoading(false);
+      setVehicleNumberError("Invalid license number.");
       return;
     }
-    // Submit logic here
-    Alert.alert("Success", "Vehicle RC information submitted successfully");
-    Keyboard.dismiss();
-  };
 
-  const handleImageUpload = (type: "front" | "back") => {
-    // In a real app, this would trigger image picker
-    const mockImage = "https://via.placeholder.com/300";
-    if (type === "front") {
-      setFrontImage(mockImage);
-    } else {
-      setBackImage(mockImage);
+    try {
+      const response = await fileUploadForm(
+        "RC",
+        ownerName,
+        vehicleNumber,
+        frontImage,
+        backImage
+      );
+      if (response.status === 200) {
+        setLoading(false);
+        router.navigate("/VerificationScreen");
+      }
+    } catch (error) {
+      setLoading(false);
+      Alert.alert("Error", "Failed to submit form");
     }
   };
   const handleUploadFrontPhotoFromGallery = async () => {
@@ -134,6 +148,9 @@ const VehicleRCForm = () => {
                 returnKeyType="done"
                 onSubmitEditing={Keyboard.dismiss}
               />
+              {vehicleNumberError && (
+                <Text style={{ color: "red" }}>{vehicleNumberError}</Text>
+              )}
             </View>
 
             {/* RC Images Upload Section */}
@@ -161,7 +178,7 @@ const VehicleRCForm = () => {
                         ]}
                       >
                         <Image
-                          source={{ uri: frontImage }}
+                          source={{ uri: frontImage.uri }}
                           style={styles.uploadedImage}
                         />
 
@@ -189,7 +206,6 @@ const VehicleRCForm = () => {
                       </>
                     )}
                   </TouchableOpacity>{" "}
-                
                 </View>
 
                 <View
@@ -212,7 +228,7 @@ const VehicleRCForm = () => {
                         ]}
                       >
                         <Image
-                          source={{ uri: backImage }}
+                          source={{ uri: backImage.uri }}
                           style={styles.uploadedImage}
                         />
 
@@ -238,19 +254,6 @@ const VehicleRCForm = () => {
                       </>
                     )}
                   </TouchableOpacity>
-                  {/* {backImage ? (
-                    <TouchableOpacity
-                      style={[
-                        styles.uploadBottomButton,
-                        // frontImage && styles.uploadedButton,
-                      ]}
-                      onPress={() => {
-                        setBackModalVisible(true);
-                      }}
-                    >
-                      <Text style={{ color: "white" }}>Change Photo</Text>
-                    </TouchableOpacity>
-                  ) : null} */}
                 </View>
               </View>
             </View>
@@ -283,12 +286,16 @@ const VehicleRCForm = () => {
                 (!ownerName || !vehicleNumber || !frontImage || !backImage) &&
                   styles.disabledButton,
               ]}
-              onPress={handleSubmit}
+              onPress={handleSubmitRc}
               disabled={
                 !ownerName || !vehicleNumber || !frontImage || !backImage
               }
             >
-              <Text style={styles.submitButtonText}>Submit</Text>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.submitButtonText}>Submit</Text>
+              )}
             </TouchableOpacity>
           </View>
         </TouchableWithoutFeedback>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,6 +11,7 @@ import {
   ScrollView,
   Image,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -18,6 +19,10 @@ import { Picker } from "@react-native-picker/picker";
 import ImageUploader from "@/components/UploadImageComponent";
 import PhotoSelectionModal from "@/components/PhotoSelectionModal;";
 import { openCamera, openImagePicker } from "@/utils/imageUtils";
+import { imagePickerResponseType } from "@/utils/types/typeUtils";
+import { validateAadhaar, validateDL, validatePan } from "@/utils/validationUtils";
+import { fileUploadForm } from "@/services/auth";
+import { router } from "expo-router";
 
 type IDType = "AADHAAR" | "PAN";
 
@@ -35,24 +40,14 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [documentNumber, setDocumentNumber] = useState("");
   const [selectedID, setSelectedID] = useState<IDType>("AADHAAR");
-  const [backImage, setBackImage] = useState<string | null>(null);
-  const [frontImage, setFrontImage] = useState<string | null>(null);
+  const [backImage, setBackImage] = useState<imagePickerResponseType>();
+  const [frontImage, setFrontImage] = useState<imagePickerResponseType>();
   const [frontmodalVisible, setFrontModalVisible] = useState(false);
   const [backmodalVisible, setBackModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [documentError, setDocumentError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    if (!documentNumber || !frontImage || !backImage) {
-      Alert.alert("Error", "Please fill all fields and upload both images");
-      return;
-    }
-
-    onSubmit({
-      idType: selectedID,
-      documentNumber,
-      frontImage,
-      backImage,
-    });
-  };
+  
   const handleUploadFrontPhotoFromGallery = async () => {
     const responseImage = await openImagePicker({
       aspect: [1, 1],
@@ -91,6 +86,55 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
     }
     setBackModalVisible(false);
   };
+
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  const handleInputFocus = () => {
+    // Scroll to the input field when focused
+    setTimeout(() => {
+      scrollViewRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
+  const handleSubmitAadhaarPan = async () => {
+    setLoading(true);
+    if(selectedID==="AADHAAR"){
+      if (!validateAadhaar(documentNumber)) {
+        
+        setLoading(false);
+        setDocumentError("Invalid Aadhaar number.");
+        return;
+      }
+    
+    }
+    if(selectedID==="PAN"){
+    
+      if (!validatePan(documentNumber)) {
+       
+        setLoading(false);
+        setDocumentError("Invalid PAN number.");
+        return;
+      }
+    }
+   
+    try {
+      const response = await fileUploadForm(
+        selectedID,
+        "",
+        documentNumber,
+        frontImage,
+        backImage
+      );
+      if (response.status === 200) {
+        setLoading(false);
+        router.navigate("/VerificationScreen");
+      }
+    } catch (error) {
+      setLoading(false);
+   
+      Alert.alert("Error", "Failed to submit form");
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -99,15 +143,21 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
         <ScrollView
+       
+          ref={scrollViewRef}
           contentContainerStyle={styles.scrollContainer}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          contentInsetAdjustmentBehavior="automatic"
+          automaticallyAdjustContentInsets={true}
+          showsVerticalScrollIndicator={false}
         >
           {/* Select ID Type */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Select ID Type</Text>
             <View style={styles.pickerContainer}>
               <Picker
-                selectedValue={selectedID}
+                selectedValue={selectedID?.toUpperCase()}
                 onValueChange={(itemValue: IDType) => setSelectedID(itemValue)}
                 dropdownIconColor="#6B7280"
                 style={styles.picker}
@@ -136,7 +186,7 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
                 {frontImage ? (
                   <View style={styles.imageContainer}>
                     <Image
-                      source={{ uri: frontImage }}
+                      source={{ uri: frontImage.uri }}
                       style={styles.aadhaarImage}
                       resizeMode="cover"
                     />
@@ -167,7 +217,7 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
                 {backImage ? (
                   <View style={styles.imageContainer}>
                     <Image
-                      source={{ uri: backImage }}
+                      source={{ uri: backImage.uri }}
                       style={styles.aadhaarImage}
                       resizeMode="cover"
                     />
@@ -206,12 +256,16 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
               onChangeText={setDocumentNumber}
               keyboardType={selectedID === "AADHAAR" ? "number-pad" : "default"}
               maxLength={selectedID === "AADHAAR" ? 14 : 10}
+              onFocus={handleInputFocus}
             />
             <Text style={styles.helperText}>
               {selectedID === "AADHAAR"
                 ? "Enter 12-digit Aadhaar number without spaces"
                 : "Enter 10-character PAN number"}
             </Text>
+            {documentError && (
+              <Text style={{ color: "red" }}>{documentError}</Text>
+            )}
           </View>
 
           {/* Photo Selection Modal */}
@@ -245,10 +299,15 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
               (!documentNumber || !frontImage || !backImage) &&
                 styles.disabledButton,
             ]}
-            onPress={handleSubmit}
+            onPress={handleSubmitAadhaarPan}
             disabled={!documentNumber || !frontImage || !backImage}
           >
+             {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
             <Text style={styles.submitButtonText}>Submit</Text>
+          )}
+          
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
