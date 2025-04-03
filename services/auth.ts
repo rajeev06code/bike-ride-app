@@ -33,7 +33,7 @@ export const profileForm = async (
   lastName: string,
   gender: string,
   dateOfBirth: string,
-  image: string
+  image: imagePickerResponseType
 ) => {
   const formData = new FormData();
 
@@ -42,9 +42,9 @@ export const profileForm = async (
   formData.append("gender", gender);
   formData.append("date_of_birth", dateOfBirth);
   formData.append("profile_image", {
-    uri: image,
-    type: "image/jpeg",
-    name: "profile.jpg",
+    uri: image.uri,
+    type: image.mimeType,
+    name: image.fileName,
   });
 
   try {
@@ -54,10 +54,19 @@ export const profileForm = async (
       },
     });
 
-   
     return response;
   } catch (error) {
     throw error;
+  }
+};
+
+export const getVerificationSteps = async () => {
+  try {
+    const response = await apiClient.post("/api/file/list/", {});
+
+    return response;
+  } catch (error: any) {
+    throw error?.response?.data || { message: "Failed to request OTP" };
   }
 };
 
@@ -71,7 +80,7 @@ export const fileUploadForm = async (
   const formData = new FormData();
 
   formData.append("file_type", fileType);
-  if (vehicleOwner.length>0) {
+  if (vehicleOwner.length > 0) {
     formData.append("v_owner_name", vehicleOwner);
   }
   formData.append("file_number", fileNumber);
@@ -92,9 +101,60 @@ export const fileUploadForm = async (
       },
     });
 
- 
     return response;
   } catch (error) {
     // throw error;
+  }
+};
+
+export const addBankDetails = async (
+  paymentMethod: string,
+  accountName: string,
+  accountNumber: string,
+  ifscCode: string,
+  bankName: string,
+  upiId: string
+) => {
+  const payload: Record<string, string> = {
+    payment_method: paymentMethod,
+  };
+  if (accountName) payload.account_name = accountName;
+  if (accountNumber) payload.account_number = accountNumber;
+  if (ifscCode) payload.ifsc_code = ifscCode;
+  if (bankName) payload.bank_Id = bankName;
+  if (upiId) payload.upi_number = upiId;
+
+  try {
+    const response = await apiClient.post("/api/add_bank_details/", payload);
+    return response;
+  } catch (error: any) {
+    throw error?.response?.data || { message: "Failed" };
+  }
+};
+export const getBankList = async () => {
+  try {
+    const response = await apiClient.get("/api/bank/list/");
+    return response;
+  } catch (error: any) {
+    throw error?.response?.data || { message: "Failed to request OTP" };
+  }
+};
+
+// ================================main services========================================
+
+export const markDriverAvailable = async (
+  lat: number,
+  lng: number,
+  isAvailable: boolean
+) => {
+  try {
+    const response = await apiClient.post("/api/driver/availability/", {
+      current_lat: lat,
+      current_lng: lng,
+      is_available: isAvailable,
+    });
+    return response;
+  } catch (error: any) {
+    throw error?.response?.data || { message: "Failed to request OTP" };
   }
 };

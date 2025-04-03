@@ -13,6 +13,7 @@ import {
   ScrollView,
   Alert,
   Button,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
@@ -23,16 +24,18 @@ import { router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import DatePicker from "react-native-date-picker";
 import PhotoSelectionModal from "@/components/PhotoSelectionModal;";
+import { imagePickerResponseType } from "@/utils/types/typeUtils";
 
 type GenderType = "Male" | "Female" | "Other" | null;
 
 const ProfileInfo = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [firstName, setFirstName] = useState("");
+  const [loading, setLoading] = useState(false);
   const [lastName, setLastName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<imagePickerResponseType>();
   const [gender, setGender] = useState<GenderType>(null);
 
   const handleProfilePictureUpdate = async () => {
@@ -67,8 +70,10 @@ const ProfileInfo = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     if (!firstName || !lastName || !gender || !dateOfBirth) {
       Alert.alert("Error", "Please fill all fields");
+      setLoading(false);
       return;
     }
 
@@ -81,9 +86,11 @@ const ProfileInfo = () => {
         image
       );
       if (response.status === 200) {
+        setLoading(false);
         router.navigate("/VerificationScreen");
       }
     } catch (error) {
+      setLoading(false);
       Alert.alert("Error", "Failed to submit form");
     }
   };
@@ -108,7 +115,7 @@ const ProfileInfo = () => {
               <View style={styles.profilePicture}>
                 {image ? (
                   <Image
-                    source={{ uri: image }}
+                    source={{ uri: image.uri }}
                     style={styles.profileImage}
                     resizeMode="cover"
                   />
@@ -221,7 +228,12 @@ const ProfileInfo = () => {
             onPress={handleSubmit}
             disabled={!firstName || !lastName || !gender || !dateOfBirth}
           >
-            <Text style={styles.submitButtonText}>Submit</Text>
+             {loading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text style={styles.submitButtonText}>Submit</Text>
+            )}
+          
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

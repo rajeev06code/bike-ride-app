@@ -1,10 +1,13 @@
+import { LocationProvider } from "@/context/UserLocationContext";
 import { Stack } from "expo-router";
 
 export default function MainStack() {
   return (
+    <LocationProvider>
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false}} />
     </Stack>
+    </LocationProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,18 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  Button,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { requestOTP } from "@/services/auth";
+import { useLocation } from "@/context/UserLocationContext";
+import useAddress from "@/hooks/custom/useAddress";
+import { getAddressFromCoordinates } from "@/utils/locationUtils";
 
 const PhoneNumberScreen = () => {
+ 
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +62,8 @@ const PhoneNumberScreen = () => {
     <View style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
+
+     
         <Ionicons name="phone-portrait-outline" size={48} color="#FF9933" />
         <Text style={styles.title}>Enter Your Phone Number</Text>
         <Text style={styles.subtitle}>
@@ -101,14 +108,11 @@ const PhoneNumberScreen = () => {
         </TouchableOpacity>
 
         {/* Developer Button - Hidden in production */}
-        {__DEV__ && (
-          <TouchableOpacity
-            style={styles.devButton}
-            onPress={clearToken}
-          >
+        {/* {__DEV__ && (
+          <TouchableOpacity style={styles.devButton} onPress={clearToken}>
             <Text style={styles.devButtonText}>Clear Token (Dev)</Text>
           </TouchableOpacity>
-        )}
+        )} */}
       </View>
 
       {/* Terms and Conditions */}
@@ -188,7 +192,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   primaryButton: {
-    backgroundColor:"#FF9933",
+    backgroundColor: "#FF9933",
     borderRadius: 12,
     height: 56,
     justifyContent: "center",

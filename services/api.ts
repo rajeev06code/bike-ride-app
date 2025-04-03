@@ -12,12 +12,15 @@ const apiClient = axios.create({
 // Add request interceptor
 apiClient.interceptors.request.use(
   async (config) => {
+    // console.log("the ffffffffffffffffff--",config)
     try {
       const token = await AsyncStorage.getItem("access_token");
       // console.log("auth token is reaq----", token);
 
       if (token) {
+        
         const parsedToken = JSON.parse(token).access_token;
+        // console.log(parsedToken)
         if (parsedToken) {
           config.headers.Authorization = `Bearer ${parsedToken}`;
         }
@@ -37,14 +40,13 @@ apiClient.interceptors.request.use(
 // Add response interceptor
 apiClient.interceptors.response.use(
   (response) => {
-    // Handle successful responses
     return response;
   },
   (error) => {
     // Handle errors globally
     if (error.response) {
       // Server responded with a status code outside 2xx
-      console.error("API Error:", error.response.data);
+      console.error("API Error:", error.response);
     } else if (error.request) {
       // Request was made but no response received
       console.error("API Request Error:", error.request);

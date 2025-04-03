@@ -161,9 +161,10 @@ const AadhaarScreen: React.FC<AadhaarScreenProps> = ({ onClose, onSubmit }) => {
                 onValueChange={(itemValue: IDType) => setSelectedID(itemValue)}
                 dropdownIconColor="#6B7280"
                 style={styles.picker}
+                
               >
                 <Picker.Item label="Aadhaar Card" value="AADHAAR" />
-                <Picker.Item label="PAN Card" value="PAN" />
+                {/* <Picker.Item label="PAN Card" value="PAN" /> */}
               </Picker>
             </View>
           </View>

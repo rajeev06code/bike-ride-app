@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "bike-ride-app",
+    "name": "Riderly",
     "slug": "bike-ride-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,14 +10,20 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.rajeev123.bikerideapp"
+      "bundleIdentifier": "com.rajeev123.bikerideapp",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Riderly needs access to your location to find nearby rides and track your ride activity.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Riderly needs access to your location to find nearby rides and track your ride activity."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.rajeev123.bikerideapp"
+      "package": "com.rajeev123.bikerideapp",
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
+      "googleMapsApiKey":"AIzaSyAHEIOENPJxurhQmfyT8pdOmiVNfBIpIu8"
     },
     "web": {
       "bundler": "metro",
@@ -33,6 +39,12 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Riderly needs access to your location to find nearby rides and track your ride activity."
         }
       ]
     ],

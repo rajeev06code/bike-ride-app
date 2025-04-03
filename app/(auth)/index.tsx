@@ -12,12 +12,14 @@ import {
 import Icon from "react-native-vector-icons/Feather";
 import PagerView from "react-native-pager-view";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthScreen = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const pagerRef = useRef(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  
 
   const slides = [
     {
@@ -47,7 +49,10 @@ const AuthScreen = () => {
       pagerRef.current?.setPage(currentPage - 1);
     }
   };
-
+  const clearToken = async () => {
+    await AsyncStorage.multiRemove(["access_token", "user_info"]);
+    router.replace("/OnboardForm");
+  };
   return (
     <LinearGradient colors={["#F3F4F6", "#FFFFFF"]} style={styles.container}>
       <SafeAreaView style={styles.safeContainer}>
@@ -65,7 +70,7 @@ const AuthScreen = () => {
             </View>
           ))}
         </PagerView>
-
+<View ><Text onPress={clearToken} >clear</Text></View>
         <View style={styles.bottomContainer}>
           <TouchableOpacity onPress={() => handlePageChange("back")}>
             <Icon
@@ -161,6 +166,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 25,
+    
   },
   registerButtonText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
 });

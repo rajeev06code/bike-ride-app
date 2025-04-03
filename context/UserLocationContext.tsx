@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { AppState, Alert, Linking, Platform } from 'react-native';
-import * as Location from 'expo-location';
+import { createContext, useContext, useState, useEffect } from "react";
+import { AppState, Alert, Linking, Platform } from "react-native";
+import * as Location from "expo-location";
+import { getAddressFromCoordinates } from "@/utils/locationUtils";
 
 const LocationContext = createContext(null);
 
@@ -8,8 +9,11 @@ export function LocationProvider({ children }) {
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [permissionStatus, setPermissionStatus] = useState(null);
+  const [isFetching, setIsFetching] = useState(true); // New state to track fetching
+  const [address, setAddress] = useState(null);
 
   const getLocation = async () => {
+    setIsFetching(true); // Indicate that fetching has started
     try {
       const { status } = await Location.getForegroundPermissionsAsync();
       setPermissionStatus(status);
@@ -18,10 +22,16 @@ export function LocationProvider({ children }) {
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
-        setLocation(currentLocation);
+        setLocation(currentLocation.coords);
+        fetchAddress(
+            currentLocation.coords.latitude,
+            currentLocation.coords.longitude
+          );
       }
     } catch (error) {
       setErrorMsg(error.message);
+    } finally {
+      setIsFetching(false); // Ensure we set fetching to false after the attempt
     }
   };
 
@@ -51,14 +61,21 @@ export function LocationProvider({ children }) {
   const refreshLocation = async () => {
     if (permissionStatus === "granted") {
       try {
+        setIsFetching(true);
         const currentLocation = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High,
         });
-        setLocation(currentLocation);
+        setLocation(currentLocation.coords);
+        fetchAddress(
+          currentLocation.coords.latitude,
+          currentLocation.coords.longitude
+        );
         return currentLocation;
       } catch (error) {
         setErrorMsg(error.message);
         return null;
+      } finally {
+        setIsFetching(false);
       }
     }
     return null;
@@ -70,7 +87,7 @@ export function LocationProvider({ children }) {
       "This app needs location permission to work properly. Would you like to open settings to enable it?",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Open Settings", onPress: () => openAppSettings() }
+        { text: "Open Settings", onPress: () => openAppSettings() },
       ]
     );
   };
@@ -82,9 +99,27 @@ export function LocationProvider({ children }) {
       await Linking.openSettings();
     }
   };
-
+  const fetchAddress = async (latitude, longitude) => {
+    try {
+      const response = await getAddressFromCoordinates(latitude, longitude);
+    
+      setAddress(response);
+    } catch (err) {
+      console.error("Failed to fetch address", err);
+      setAddress(null);
+    }
+  };
   return (
-    <LocationContext.Provider value={{ location, errorMsg, permissionStatus, refreshLocation }}>
+    <LocationContext.Provider
+      value={{
+        location,
+        errorMsg,
+        permissionStatus,
+        refreshLocation,
+        isFetching,
+        address,
+      }}
+    >
       {children}
     </LocationContext.Provider>
   );
@@ -93,6 +128,3 @@ export function LocationProvider({ children }) {
 export function useLocation() {
   return useContext(LocationContext);
 }
-
-
-
