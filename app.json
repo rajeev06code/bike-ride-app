@@ -23,7 +23,7 @@
       },
       "package": "com.rajeev123.bikerideapp",
       "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
-      "googleMapsApiKey":"AIzaSyAHEIOENPJxurhQmfyT8pdOmiVNfBIpIu8"
+     
     },
     "web": {
       "bundler": "metro",
